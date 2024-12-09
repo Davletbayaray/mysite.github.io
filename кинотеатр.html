@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chaplin Кинотеатры</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Сол жақ мәзір */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: #333;
+            padding: 20px;
+            color: #fff;
+            transition: left 0.3s ease;
+            z-index: 10;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 50px; /* Элементтерді төменірек орналастыру */
+        }
+
+        .sidebar ul li {
+            margin: 15px 0;
+        }
+
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .menu-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 20;
+        }
+
+        /* Жоғарғы мәзір */
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #444;
+            padding: 10px;
+            z-index: 5;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li {
+            position: relative;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+        }
+
+        nav ul li:hover .dropdown-menu {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .dropdown-menu {
+            display: block;
+            position: absolute;
+            top: 40px;
+            left: 0;
+            background-color: #444;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.5s, opacity 0.5s ease-in-out;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 5px;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #555;
+        }
+
+        /* Полоса загрузки */
+        .progress-container {
+            margin: 20px auto;
+            width: 80%;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f3f3f3;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar span {
+            display: block;
+            height: 100%;
+            border-radius: 5px;
+            animation: progress-animation 3s infinite;
+        }
+
+        .progress-bar span.red {
+            background-color: red;
+            animation-delay: 0s;
+        }
+
+        .progress-bar span.blue {
+            background-color: blue;
+            animation-delay: 0.5s;
+        }
+
+        .progress-bar span.green {
+            background-color: green;
+            animation-delay: 1s;
+        }
+
+        .progress-bar span.yellow {
+            background-color: yellow;
+            animation-delay: 1.5s;
+        }
+
+        .progress-bar span.purple {
+            background-color: purple;
+            animation-delay: 2s;
+        }
+
+        @keyframes progress-animation {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
+
+        /* Карточкалар */
+        .movie-list {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px;
+        }
+
+        .movie {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            margin: 15px;
+            text-align: center;
+            width: 320px;
+            height: 470px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .movie:hover {
+            opacity: 1;
+        }
+
+        .movie img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .movie p {
+            margin: 10px;
+        }
+
+        /* Бөлісу батырмасы */
+        .share-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 15;
+        }
+
+        .share-menu {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 14;
+        }
+
+        .share-menu a {
+            text-decoration: none;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .share-menu a:hover {
+            background-color: #f4f4f4;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+       
+        .main-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 40px 0;
+            color: #333;
+        }
+
+        
+        @media screen and (max-width: 768px) {
+            .movie {
+                width: 48%;
+            }
+
+            .sidebar {
+                width: 200px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .movie {
+                width: 100%;
+            }
+
+            .sidebar {
+                width: 180px;
+            }
+        }
+        .center-text{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+
+<div class="main-title">Chaplin Кинотеатры</div>
+
+
+<div class="menu-button" onclick="toggleSidebar()">≡</div>
+<div class="sidebar" onmouseenter="showSidebar()" onmouseleave="hideSidebar()">
+    <ul>
+        <li><a href="https://www.kinopoisk.ru/lists/movies/top500/?utm_referrer=www.google.com">Кинолар</a></li>
+        <li><a href="Кинокору.html">Көру</a></li>
+        <li><a href="байланыс.html">Байланыс</a></li>
+    </ul>
+</div>
+
+
+<nav>
+    <ul>
+        <li>
+            <a href="#movies">Кинолар</a>
+            <div class="dropdown-menu">
+                <a href="https://www.kinopoisk.ru/lists/movies/top_100_action_by_time_out/">Экшн</a>
+                <a href="https://www.kinopoisk.ru/lists/movies/genre--comedy/">Комедия</a>
+                <a href="https://www.kinopoisk.ru/lists/movies/genre--drama/?b=films">Драма</a>
+            </div>
+        </li>
+        <li><a href="Кинокору.html">Көру</a></li>
+        <li><a href="байланыс.html">Байланыс</a></li>
+    </ul>
+</nav>
+
+
+<div class="center-text"><h1>Көрсетіліп жатқан кинолар</h1></div>
+
+<div class="movie-list">
+    <div class="movie">
+        <a href="10laab.html">
+        <img src="https://upload.wikimedia.org/wikipedia/ru/thumb/f/f7/Stranger_Things_season_2.jpg/640px-Stranger_Things_season_2.jpg" alt="Movie 1">
+    </a>
+        <p>Очень странные дела-Netflix ағындық қызметі үшін Duffer Brothers жасаған қорқынышты элементтері бар американдық ғылыми фантастикалық драма сериясы. Дафферлер шоу-бағдарламалар ретінде қызмет етеді.
+        </p>
+    </div>
+    <div class="movie">
+        <img src="https://thumbs.dfs.ivi.ru/storage5/contents/3/8/1d5bdca709e44e51ef909693d0f74b.jpg" alt="Movie 2">
+        <p>Полтора шпиона-Әлеуметтік желіні ұнатудан әлемді құтқаруға дейін бір қадам. Бүгін сен бұрынғы сыныптасыңмен доссың, ал ертең ол сені оқтың астында сүйретеді. Кім білген пончикті ұнататын адам тастай супер тыңшыға айналады.</p>
+    </div>
+    <div class="movie">
+        <img src="https://m.ticketon.kz/files/media/500_700_white_65e834cb6cc5f%20(1).jpg" alt="Movie 3">
+        <p>Пейиш-2024 жылғы қырғыз драмалық фильм. Режиссері – Руслан Акун. Фильмнің сюжеті анасы жұмаққа бару үшін Меккеге жаяу баруды шешкен ақыл-ойы кем адам төңірегінде өрбиді. Бұл сүйіспеншіліктің керемет күші туралы және олардың ұлтына қарамастан әртүрлі адамдардың мейірімділігі ғана барлық қиындықтарды жеңуге көмектесетіні туралы әңгіме.</p>
+    </div>
+</div>
+
+
+<div class="progress-container">
+    <div class="progress-bar"><span class="red"></span></div>
+    <div class="progress-bar"><span class="blue"></span></div>
+    <div class="progress-bar"><span class="green"></span></div>
+    <div class="progress-bar"><span class="yellow"></span></div>
+    <div class="progress-bar"><span class="purple"></span></div>
+</div>
+
+
+<div class="share-button" onclick="toggleShareMenu()">+</div>
+<div class="share-menu">
+    <a href="https://www.facebook.com/groups/234228666717593/?locale=ru_RU">Facebook</a>
+    <a href="https://ssstwitter.com/ru">Twitter</a>
+    <a href="https://www.instagram.com/kinopoisk/">Instagram</a>
+</div>
+
+<script>
+    // Сол жақ мәзірді ашу және жабу
+    function toggleSidebar() {
+        document.querySelector('.sidebar').classList.toggle('open');
+    }
+
+    // Сол жақ мәзір автоматты түрде ашылып, жабылады
+    function showSidebar() {
+        document.querySelector('.sidebar').classList.add('open');
+    }
+
+    function hideSidebar() {
+        document.querySelector('.sidebar').classList.remove('open');
+    }
+
+    // Бөлісу мәзірін ашу және жабу
+    function toggleShareMenu() {
+        const shareMenu = document.querySelector('.share-menu');
+        if (shareMenu.style.display === 'flex') {
+            shareMenu.style.display = 'none';
+        } else {
+            shareMenu.style.display = 'flex';
+        }
+    }
+</script>
+
+</body>
+</html>
